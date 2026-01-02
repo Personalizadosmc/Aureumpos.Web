@@ -14,6 +14,23 @@ const formatearMoneda = (amount) => {
   return new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(amount).replace('DOP', 'RD$');
 };
 
+// Funciones para mostrar/ocultar el cargando
+function mostrarCargando() {
+    const loader = document.getElementById('loadingOverlay');
+    if (loader) {
+        loader.classList.remove('d-none'); // Quita la clase que lo oculta
+        loader.style.display = 'flex';     // Asegura que se vea centrado
+    }
+}
+
+function ocultarCargando() {
+    const loader = document.getElementById('loadingOverlay');
+    if (loader) {
+        loader.classList.add('d-none');    // Vuelve a ocultarlo
+        loader.style.display = 'none';
+    }
+}
+
 function mostrarToast(mensaje, tipo = 'info') {
   const div = document.createElement('div');
   const color = tipo === 'error' ? 'bg-danger' : tipo === 'success' ? 'bg-success' : 'bg-primary';
@@ -27,20 +44,38 @@ function mostrarToast(mensaje, tipo = 'info') {
 }
 
 async function fetchWithAuth(endpoint, options = {}) {
+  // 1. MOSTRAR EL SPINNER AL INICIAR
+  mostrarCargando();
+
   const headers = { 'Content-Type': 'application/json', ...options.headers };
   if (token) headers['Authorization'] = `Bearer ${token}`;
   options.headers = headers;
 
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`, options);
+    
+    // Si no hay contenido (204), retornamos null
     if (response.status === 204) return null;
+
     if (!response.ok) {
-      if (response.status === 401) { cerrarSesion(); throw new Error("Sesión caducada"); }
+      if (response.status === 401) { 
+        cerrarSesion(); 
+        throw new Error("Sesión caducada"); 
+      }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.detail || `Error ${response.status}`);
     }
+    
     return await response.json();
-  } catch (error) { console.error("API Error:", error); throw error; }
+
+  } catch (error) { 
+    console.error("API Error:", error); 
+    throw error; 
+
+  } finally {
+    // 2. OCULTAR EL SPINNER SIEMPRE (Haya éxito o error)
+    ocultarCargando();
+  }
 }
 
 async function inicializarApp() {
@@ -454,5 +489,6 @@ async function borrarCat(id) { if(confirm('¿Borrar?')) try { await fetchWithAut
 async function borrarProd(id) { if(confirm('¿Borrar?')) try { await fetchWithAuth(`/products/${id}`, { method:'DELETE' }); cargarProductosAdmin(); } catch(e){ alert('Error al borrar'); } }
 
 document.getElementById('numeroTarjeta').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g,'').substring(0,16).replace(/(.{4})/g, '$1 ').trim(); });
+
 
 document.addEventListener('DOMContentLoaded', inicializarApp);
