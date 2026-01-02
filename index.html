@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AureumPOS - Sistema de Ventas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="header-main sticky-top">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 mb-lg-0">
+      
+      <a href="#" class="brand-logo-container me-5" onclick="irASeccion('portada')">
+        <div class="logo-icon">
+          <i class="bi bi-box-seam-fill"></i>
+        </div>
+        <span class="logo-text">AureumPOS</span>
+      </a>
+
+      <div class="nav-quick-links d-none d-lg-flex flex-grow-1" id="navCategoriasHeader">
+        <a class="nav-pill-custom active" onclick="irASeccion('portada')">
+          <i class="bi bi-house-door-fill"></i> Inicio
+        </a>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 ms-auto">
+        
+        <button class="btn btn-link text-white position-relative me-2" onclick="irASeccion('carrito')">
+          <i class="bi bi-cart3 fs-4"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" id="cartCount">0</span>
+        </button>
+
+        <div id="authButtonsContainer" class="auth-buttons d-flex">
+          <button class="btn btn-outline-light btn-sm me-2" onclick="irASeccion('login')">Ingresar</button>
+          <button class="btn btn-warning btn-sm fw-bold" onclick="irASeccion('registro')">Registrarse</button>
+        </div>
+
+        <div id="userDropdownContainer" class="d-none">
+            <div class="dropdown">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center gap-2 rounded-pill px-3" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i> <span id="userNameNav">Usuario</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <li><a class="dropdown-item" href="#" onclick="irASeccion('historial')">Mis Cotizaciones</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="cerrarSesion()">Cerrar sesión</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <button class="btn btn-danger btn-sm rounded-pill d-none ms-2" onclick="irASeccion('adminPanel')" id="btnAdminNav">
+            Admin
+        </button>
+
+        <button class="btn text-white d-lg-none ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
+          <i class="bi bi-list fs-2"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="collapse d-lg-none mt-2" id="mobileMenu">
+      <div class="bg-white rounded p-3 shadow">
+        <h6 class="text-muted fw-bold">Menú</h6>
+        <div class="d-flex flex-column gap-2" id="navCategoriasMobile">
+           <a href="#" class="text-dark text-decoration-none py-1" onclick="irASeccion('portada')">Inicio</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container my-5 flex-grow-1">
+
+  <div id="portada" class="seccion active">
+    <div class="text-center py-5">
+      <h1 class="display-4 fw-bold text-dark mb-3">Explora Todos Nuestros Productos Personalizados</h1>
+    <p class="text-danger fw-bold">EL PRECIO DE CADA ARTÍCULO INCLUYE EL PERSONALIZADO.</p>  
+      <p class="lead text-muted mb-5">Selecciona una categoría del menú superior o busca tu producto ideal.</p>
+      
+      <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+           <form onsubmit="event.preventDefault();" class="position-relative">
+            <input type="text" id="searchInput" class="form-control form-control-lg rounded-pill px-5 shadow-sm" placeholder="¿Qué estás buscando? (Ej: Taza térmica)" oninput="buscarProductosEnTiempoReal()">
+            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted fs-5"></i>
+           </form>
+        </div>
+      </div>
+
+      <div id="resultadosBusqueda" class="d-none text-start">
+        <h4 id="tituloResultados" class="mb-3"></h4>
+        <div class="row g-4" id="productosResultados"></div>
+      </div>
+
+      <div id="contenedorCategoriasHome">
+        <h3 class="fw-bold text-start mb-4 text-dark border-bottom pb-2">Explorar Catálogo</h3>
+        <div class="row g-4" id="listaCategorias"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="login" class="seccion">
+    <div class="row justify-content-center">
+      <div class="col-md-5">
+        <div class="card p-5">
+          <div class="text-center mb-4">
+            <div class="d-inline-block bg-warning text-white rounded p-3 mb-2"><i class="bi bi-person-fill fs-1"></i></div>
+            <h3 class="fw-bold">Iniciar Sesión</h3>
+          </div>
+          <form onsubmit="event.preventDefault(); iniciarSesion();">
+            <div class="mb-3"><label class="form-label">Email</label><input type="email" id="loginEmail" class="form-control" required></div>
+            <div class="mb-4"><label class="form-label">Contraseña</label><input type="password" id="loginPass" class="form-control" required></div>
+            <button type="submit" class="btn btn-warning w-100 fw-bold">Ingresar</button>
+          </form>
+          <div class="text-center mt-3"><a href="#" onclick="irASeccion('registro')">¿No tienes cuenta? Regístrate</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="registro" class="seccion">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card p-5">
+          <h3 class="text-center mb-4 fw-bold">Crear Cuenta</h3>
+          <form onsubmit="event.preventDefault(); registrarUsuario();">
+            <div class="row g-3">
+              <div class="col-md-6"><label>Nombre</label><input type="text" id="regNombre" class="form-control" required></div>
+              <div class="col-md-6"><label>Apellido</label><input type="text" id="regApellido" class="form-control" required></div>
+              <div class="col-md-6"><label>Email</label><input type="email" id="regEmail" class="form-control" required></div>
+              <div class="col-md-6"><label>Teléfono</label><input type="tel" id="regTelefono" class="form-control" required></div>
+              <div class="col-12"><label>Dirección</label><input type="text" id="regDireccion" class="form-control" required></div>
+              <div class="col-md-6"><label>Contraseña</label><input type="password" id="regPass" class="form-control" required></div>
+              <div class="col-md-6"><label>Confirmar</label><input type="password" id="regPassConfirm" class="form-control" required></div>
+            </div>
+            <button type="submit" class="btn btn-warning w-100 mt-4 fw-bold">Registrarse</button>
+          </form>
+          <div class="text-center mt-3"><a href="#" onclick="irASeccion('login')">Ya tengo cuenta</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="productos" class="seccion">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 id="tituloCategoria" class="fw-bold text-dark">Productos</h3>
+      <button class="btn btn-outline-secondary rounded-pill" onclick="irASeccion('portada')"><i class="bi bi-arrow-left"></i> Volver</button>
+    </div>
+    <div class="row g-4" id="listaProductos"></div>
+  </div>
+
+  <div id="carrito" class="seccion">
+    <div class="card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+          <h3 class="fw-bold m-0">Tu Carrito</h3>
+          <span class="badge bg-warning text-dark fs-6" id="cartCountHeader">0 items</span>
+      </div>
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead class="table-light">
+            <tr><th>Producto</th><th class="text-center">Precio</th><th class="text-center">Cant.</th><th class="text-center">Subtotal</th><th></th></tr>
+          </thead>
+          <tbody id="listaCarrito"></tbody>
+          <tfoot>
+            <tr class="fs-5 fw-bold"><td colspan="3" class="text-end">Total:</td><td class="text-center text-success" id="totalCarrito">RD$ 0.00</td><td></td></tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="d-flex justify-content-end gap-3 mt-3">
+        <button class="btn btn-outline-danger" onclick="vaciarCarrito()">Vaciar</button>
+        <button class="btn btn-info text-white" onclick="crearYDescargarCotizacion()">Cotizar PDF</button>
+        <button class="btn btn-success fw-bold px-4" onclick="irASeccion('pago')">Pagar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="historial" class="seccion">
+    <div class="card p-4">
+      <h3 class="mb-4">Mis Cotizaciones</h3>
+      <div class="table-responsive">
+        <table class="table table-hover"><thead class="table-light"><tr><th>ID</th><th>Fecha</th><th>Total</th><th></th></tr></thead><tbody id="listaHistorial"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div id="pago" class="seccion">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card p-4">
+          <h3 class="text-center mb-3">Finalizar Compra</h3>
+          <div class="alert alert-warning text-center fw-bold fs-4" id="totalPago">RD$ 0.00</div>
+          <form onsubmit="event.preventDefault(); procesarPago();">
+            <div class="mb-3"><label>Titular</label><input type="text" class="form-control" required></div>
+            <div class="mb-3"><label>Tarjeta</label><input type="text" id="numeroTarjeta" class="form-control" maxlength="19" placeholder="0000 0000 0000 0000" required></div>
+            <div class="row">
+                <div class="col-6 mb-3"><label>Expira</label><input type="text" id="fechaExpiracion" class="form-control" placeholder="MM/AA" required></div>
+                <div class="col-6 mb-3"><label>CVV</label><input type="text" class="form-control" maxlength="3" required></div>
+            </div>
+            <button type="submit" class="btn btn-success w-100 fw-bold">Pagar</button>
+            <button type="button" class="btn btn-link w-100 mt-2" onclick="irASeccion('carrito')">Cancelar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="adminPanel" class="seccion">
+    <div class="card p-4">
+        <div class="d-flex justify-content-between mb-4">
+            <h3>Panel de Administración</h3>
+            <button class="btn btn-outline-secondary" onclick="irASeccion('portada')">Salir</button>
+        </div>
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#adminCategorias">Categorías</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#adminProductos">Productos</button></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="adminCategorias">
+                <button class="btn btn-success mb-2" onclick="prepararFormularioCategoria()">Nueva Categoría</button>
+                <div class="table-responsive"><table class="table"><tbody id="listaCategoriasAdmin"></tbody></table></div>
+            </div>
+            <div class="tab-pane fade" id="adminProductos">
+                <div class="d-flex gap-2 mb-2">
+                    <input type="text" id="adminSearchProd" class="form-control" placeholder="Buscar producto..." oninput="buscarProductoAdminEnTiempoReal()">
+                    <button class="btn btn-success" onclick="prepararFormularioProducto()">Nuevo</button>
+                </div>
+                <div class="table-responsive"><table class="table"><tbody id="listaProductosAdmin"></tbody></table></div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalCategoria"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Categoría</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formCategoria"><div class="mb-3"><label>Nombre</label><input type="text" class="form-control" id="catNombre" required></div><div class="mb-3"><label>Imagen URL</label><input type="text" class="form-control" id="catImg" required></div><input type="hidden" id="catId"></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="guardarCategoria()">Guardar</button></div></div></div></div>
+  <div class="modal fade" id="modalProducto"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Producto</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><form id="formProducto"><div class="mb-3"><label>Categoría</label><select class="form-select" id="prodCategoria" required></select></div><div class="mb-3"><label>Nombre</label><input type="text" class="form-control" id="prodNombre" required></div><div class="mb-3"><label>Precio</label><input type="number" class="form-control" id="prodPrecio" required></div><div class="mb-3"><label>Imagen URL</label><input type="text" class="form-control" id="prodImg" required></div><input type="hidden" id="prodId"></form></div><div class="modal-footer"><button class="btn btn-primary" onclick="guardarProducto()">Guardar</button></div></div></div></div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-5 mb-4 pe-md-5">
+        <div class="d-flex align-items-center mb-3">
+          <div class="bg-warning text-dark rounded p-1 me-2"><i class="bi bi-box-seam-fill fs-5"></i></div>
+          <h4 class="mb-0 fw-bold">AureumPOS</h4>
+        </div>
+        <p class="text-white-50 small mb-4">
+          Sistema de punto de venta diseñado para negocios de productos personalizados, que permite gestionar
+          catálogos, procesar pedidos y generar cotizaciones de manera sencilla y eficiente.
+        </p>
+        <div class="d-flex gap-3">
+          <a href="#" class="text-white"><i class="bi bi-facebook fs-5"></i></a>
+          <a href="#" class="text-white"><i class="bi bi-instagram fs-5"></i></a>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <h5>Enlaces Rápidos</h5>
+        <a href="#" onclick="irASeccion('portada')">Inicio</a>
+        <a href="#" onclick="irASeccion('portada')">Catálogo de Productos</a>
+        <a href="#" onclick="irASeccion('carrito')">Carrito de Compras</a>
+        <a href="mailto:contacto@aureumpos.com">Contáctanos</a>
+      </div>
+      <div class="col-md-4 mb-4">
+        <h5>Información de Contacto</h5>
+        <div class="d-flex mb-3 align-items-start"><i class="bi bi-geo-alt footer-icon"></i><span>Calle Comercio 123, Ciudad, País</span></div>
+        <div class="d-flex mb-3 align-items-center"><i class="bi bi-phone footer-icon"></i><span>157 300 123 4567</span></div>
+        <div class="d-flex align-items-start"><i class="bi bi-credit-card footer-icon"></i><span>Aceptamos tarjetas de crédito</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="copyright-bar">&copy; 2025 AureumPOS. Todos los derechos reservados.</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
